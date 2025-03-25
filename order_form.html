@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оформление заказа</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #eaf4ea;
+            text-align: center;
+        }
+        .order-form {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-align: left;
+        }
+        h2, h3 {
+            text-align: center;
+            color: #2d6a4f;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            color: #2d6a4f;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #a3b18a;
+            border-radius: 30px;
+            font-size: 18px;
+            box-sizing: border-box;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            overflow-x: auto;
+        }
+        th, td {
+            border: 1px solid #a3b18a;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #d8f3dc;
+            color: #2d6a4f;
+        }
+        .buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .button {
+            background: #1b4332;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.3s;
+            text-align: center;
+            width: 45%;
+            min-width: 120px;
+        }
+        .button:hover {
+            background: #2d6a4f;
+        }
+        @media (max-width: 768px) {
+            .order-form {
+                width: 90%;
+                padding: 20px;
+            }
+            .button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="order-form">
+        <h2>Оформление заказа</h2>
+        <div class="form-group">
+            <label for="name">Имя:</label>
+            <input type="text" id="name" required>
+        </div>
+        <div class="form-group">
+            <label for="phone">Номер телефона:</label>
+            <input type="tel" id="phone" required>
+        </div>
+        <div class="form-group">
+            <label for="email">E-mail:</label>
+            <input type="email" id="email" required>
+        </div>
+        <h3>Укажите в таблице артикул и количество товаров:</h3>
+        <table>
+            <tr>
+                <th>№</th>
+                <th>Артикул</th>
+                <th>Количество</th>
+            </tr>
+            <tbody id="product-list"></tbody>
+        </table>
+        <div class="buttons">
+            <button class="button" onclick="window.location.href='index.php'">Назад</button>
+            <button class="button" onclick="submitOrder()">Подать заявку</button>
+        </div>
+    </div>
+    <script>
+        function loadProducts() {
+            let tableBody = document.getElementById("product-list");
+            for (let i = 1; i <= 10; i++) {
+                let row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${i}</td>
+                    <td><input type="text" class="article"></td>
+                    <td><input type="number" class="quantity" min="1"></td>
+                `;
+                tableBody.appendChild(row);
+            }
+        }
+        function submitOrder() {
+            let name = document.getElementById("name").value.trim();
+            let phone = document.getElementById("phone").value.trim();
+            let email = document.getElementById("email").value.trim();
+            let articles = document.querySelectorAll(".article");
+            let quantities = document.querySelectorAll(".quantity");
+            let orders = [];
+            for (let i = 0; i < articles.length; i++) {
+                if (articles[i].value.trim() && quantities[i].value > 0) {
+                    orders.push({
+                        article: articles[i].value.trim(),
+                        quantity: quantities[i].value
+                    });
+                }
+            }
+            if (!name || !phone || !email || orders.length === 0) {
+                alert("Заполните все поля!");
+                return;
+            }
+            let orderData = {
+                id: Date.now(),
+                date: new Date().toLocaleString(),
+                name,
+                phone,
+                email,
+                orders
+            };
+            let allOrders = JSON.parse(localStorage.getItem("orders")) || [];
+            allOrders.push(orderData);
+            localStorage.setItem("orders", JSON.stringify(allOrders));
+            alert("Спасибо за подачу заявки! Наш менеджер свяжется с вами по телефону или по почте, для оформления заказа.");
+            window.location.href = "/shop/index.php";
+        }
+        loadProducts();
+    </script>
+</body>
+</html>
